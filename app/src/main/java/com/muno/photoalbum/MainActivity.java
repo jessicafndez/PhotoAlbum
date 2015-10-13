@@ -8,15 +8,29 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
+import android.widget.ListView;
 
+import com.muno.photoalbum.Adapters.ListDirectoriesAdapter;
 import com.muno.photoalbum.DirectoryManagement.NewDirectory;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
+    //Components
     private ImageButton delBtn, addBtn;
+    private ListView listView;
+
+    //Variables
+    File appDir;
+    ArrayList<String> fileNamesStringArray;
+
+    //Classes
+    ListDirectoriesAdapter listDirectoriesAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         //Create or Load Initial App Directori
-        File appDir = new File(Environment.getExternalStorageDirectory() + "/PhotoAlbumDirectory");
+        appDir = new File(Environment.getExternalStorageDirectory() + "/PhotoAlbumDirectory");
         if(!appDir.exists()) {
             appDir.mkdirs();
             Log.d("trolo", "dir. created");
@@ -32,11 +46,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.d("trolo", "dir. already exists");
         }
 
-        //Our Buttons
+
+        //Our Components
         delBtn = (ImageButton)findViewById(R.id.delBtn);
         addBtn = (ImageButton)findViewById(R.id.addBtn);
         delBtn.setOnClickListener(this);
         addBtn.setOnClickListener(this);
+        listView = (ListView) findViewById(R.id.listViewMenu);
+
+        fileNamesStringArray = new ArrayList<>();
+
+        Log.d("trolo", "Principal Directory Size: " + appDir.listFiles().length);
+
+        if (appDir.listFiles().length != 0)
+            LoadDirectoriesList();
+    }
+
+
+    public void LoadDirectoriesList() {
+        Log.d("trolo", "Loading Directories.....");
+        for (File f : appDir.listFiles()) {
+            Log.d("trolo", "Directories:: " + f.getName());
+            fileNamesStringArray.add(f.getName());
+        }
+
+        listDirectoriesAdapter = new ListDirectoriesAdapter(MainActivity.this, fileNamesStringArray);
+        listView.setAdapter(listDirectoriesAdapter);
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d("trolo", "Long click Here...");
+
+                //ImageView imageView = (ImageView) v.findViewById(R.id.imageView1);
+                CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkBoxDelete);
+                checkBox.setVisibility(View.VISIBLE);
+                return false;
+            }
+        });
     }
 
     @Override

@@ -12,9 +12,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.muno.photoalbum.Adapters.GridViewImageAdapter;
 import com.muno.photoalbum.R;
@@ -29,11 +31,13 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
 
     //Components
     private ImageButton btnAccept, btnCancel;
+    private EditText eTxtDirectoryName;
 
     //Variables
     private File actualDirectory;
     private File[] actualDirectoryFilesArray;
     private ArrayList<Bitmap> imagesArray;
+    File appDir = new File(Environment.getExternalStorageDirectory() + "/PhotoAlbumDirectory");
 
     //Classes
     private GridViewImageAdapter gridViewImageAdapter;
@@ -47,6 +51,7 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
         //Components
         btnAccept = (ImageButton) findViewById(R.id.acceptBtn);
         btnCancel = (ImageButton) findViewById(R.id.cancelBtn);
+        eTxtDirectoryName = (EditText) findViewById(R.id.eTextDirecotyName);
         btnAccept.setOnClickListener(this);
         btnCancel.setOnClickListener(this);
 
@@ -237,24 +242,91 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
                         Log.d("trolo", "2- Saved: " + f[i].getPath());
                     }
                 }
+                createNewDirectory(eTxtDirectoryName.getText().toString());
             }
         }
 
-    //Set Default Directory Name
-    public void setDefaultDirectoryName(){
-        //I already checked it exist in MainActivity.java
-        //This is out principal App Directory
-        File appDir = new File(Environment.getExternalStorageDirectory() + "/PhotoAlbumDirectory");
-        File[] allFiles = appDir.listFiles();
-        if (allFiles.length == 0) {
-            //Means Directory is empty so...
-            Log.d("trolo", "App Directori is Empty!!!");
+    /*
+    Method to check if directory name is available
+     */
+    public void createNewDirectory(String dName) {
+        String directoryName = "";
+
+        //No directoy name already inserted!!
+        if (dName.equalsIgnoreCase("")) {
+            Log.d("trolo", "Go to Default Dir Name");
+            directoryName = createDefaultDirectoryName();
+            createNewDirectory(new File(directoryName));
+
+        } else if (checkNameAvailable(dName)){
+            Log.d("trolo", "Directory Name is: " + dName);
+            eTxtDirectoryName.setText("");
         }
-        for (File f: allFiles) {
-            if (f.isDirectory()) {
-                Log.d("trolo", "App Directories: "+f.getPath());
-            }
+        else {
+            directoryName = dName;
+            createNewDirectory(new File(directoryName));
         }
     }
 
+    public boolean checkNameAvailable (String s) {
+        Resources res = getResources();
+        if (checkIfDirectoryNameExist(s)) {
+            Toast.makeText(getApplicationContext(), res.getString(R.string.file_already_exists), Toast.LENGTH_LONG).show();
+        }
+        return  false;
+    }
+
+    /*
+    Set Default Directory Name if directoryName textbox is empty
+     */
+    public String createDefaultDirectoryName(){
+        //I already checked it exist in MainActivity.java
+        //This is out principal App Directory
+        File[] allFiles = appDir.listFiles();
+
+        String defaultNameString = "My Photo Album ";
+
+        String newDirectoryName = "";
+
+        Log.d("trolo", "App DIRECT PATH: "+appDir.getPath());
+
+        //Means appDir is Empty -> No directories YET
+        if (allFiles.length == 0) {
+            //Means Directory is empty so...
+            Log.d("trolo", "App Directori is Empty!!!");
+            newDirectoryName = appDir.getPath() + "/" + defaultNameString + " 1";
+        }
+
+        //App Base directory contain some directory
+        else {
+
+            //Show me all directories
+            Log.d("trolo", "Existed Direcotries");
+            for (File f: allFiles) {
+                Log.d("trolo", "Direc: "+f.getPath());
+            }
+
+            int num = 2;
+            newDirectoryName = appDir.getName() + defaultNameString + Integer.toString(num);
+            while(checkIfDirectoryNameExist(newDirectoryName)) {
+                num++;
+                newDirectoryName = appDir.getName() + "/" + defaultNameString + Integer.toString(num);
+            }
+        }
+        return newDirectoryName;
+    }
+
+    public boolean checkIfDirectoryNameExist(String n) {
+        for (File f: appDir.listFiles()) {
+            if (f.getPath().equalsIgnoreCase(n)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void createNewDirectory(File f) {
+        Log.d("trolo", "Creating directory...: "+f.getPath());
+        f.mkdirs();
+    }
 }

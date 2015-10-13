@@ -8,5 +8,6 @@
     <string name="folder_name_string">Folder Name</string>
     <string name="folder_name_hint_string">My Folder Name</string>
     <string name="loading_directory_string">Loading Photos...</string>
+    <string name="file_already_exists">File name already exists!</string>
 
 </resources>

@@ -23,7 +23,7 @@ import java.util.ArrayList;
 /**
  * Created by InX on 09/10/2015.
  */
-public class GridViewImageAdapter extends BaseAdapter implements View.OnClickListener{
+public class GridViewImageAdapter extends BaseAdapter{
 
     //Components
     private Context context;
@@ -124,6 +124,7 @@ public class GridViewImageAdapter extends BaseAdapter implements View.OnClickLis
         holder.checkBox .setChecked(selectedImages[position]);
         holder.id = position;
 
+
         return convertView;
     }
 
@@ -134,12 +135,6 @@ public class GridViewImageAdapter extends BaseAdapter implements View.OnClickLis
     public boolean[] getSelectedImages() {
         return  selectedImages;
     }
-
-    @Override
-    public void onClick(View v) {
-        Log.d("trolo", "View CLIKED");
-    }
-
 
     class ViewHolder {
         ImageView imageView;
