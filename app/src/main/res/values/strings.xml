@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Photo Album</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+    <!--New Directory Strings -->
+    <string name="folder_name_string">Folder Name</string>
+    <string name="folder_name_hint_string">My Folder Name</string>
+    <string name="loading_directory_string">Loading Photos...</string>
+
+</resources>
