@@ -4,6 +4,23 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
+    <!--Main Activity -->
+    <string name="add_new_directory">Create New Album</string>
+    <string name="ok">OK</string>
+
+    <string name="no_albums_found">We have not found any album!!\n
+        Press Top-Right corner button, then "Create New Album"</string>
+    <string name="delete_album">Delete</string>
+    <string name="rename_album">Rename</string>
+    <string name="compress_and_send">Compress and Send</string>
+    <string name="details_album">Details</string>
+
+    <!--Main Activity Context Menu -->
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="delete_directory_msg">You are about to delete the directory </string>
+    <string name="are_u_sure">Are you sure?</string>
+
     <!--New Directory Strings -->
     <string name="folder_name_string">Folder Name</string>
     <string name="folder_name_hint_string">My Folder Name</string>

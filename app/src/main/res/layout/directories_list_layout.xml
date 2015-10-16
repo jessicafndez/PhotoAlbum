@@ -2,32 +2,37 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:padding="10dp">
 
     <ImageView
         android:id="@+id/imageDirectories"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
-        android:src="@drawable/directory_image"
+        android:src="@drawable/photodir_1"
         android:scaleType="fitXY"
-        android:layout_weight="1"
+        android:layout_weight="5"
         android:layout_gravity="center"/>
 
     <TextView
         android:id="@+id/txtDirectoryName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="8"
+        android:layout_weight="14"
         android:layout_gravity="center"
-        android:layout_marginLeft="10dp"/>
+        android:layout_marginLeft="10dp"
+        android:textColor="#000000"
+        android:textSize="18sp"/>
 
-    <CheckBox
-        android:id="@+id/checkBoxDelete"
+    <TextView
+        android:id="@+id/txtDirectoryCreation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:visibility="invisible"
-        android:layout_weight="3"
-        android:layout_gravity="center"/>
+        android:layout_weight="8"
+        android:layout_gravity="center"
+        android:layout_marginLeft="10dp"
+        android:textColor="#404040"
+        android:textSize="12sp"/>
 
 </LinearLayout>

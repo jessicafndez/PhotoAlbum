@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.muno.photoalbum.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by InX on 13/10/2015.
@@ -23,9 +24,13 @@ public class ListDirectoriesAdapter extends BaseAdapter {
     private ArrayList<String> directoriesList;
     private LayoutInflater mInflater;
 
-    public ListDirectoriesAdapter(Context c, ArrayList<String> dList) {
+    private ArrayList<HashMap<String, String>> hashMapArrayList;
+
+    public ListDirectoriesAdapter(Context c, ArrayList<String> dList, ArrayList<HashMap<String, String>> myHash) {
         this.context = c;
         this.directoriesList = dList;
+
+        this.hashMapArrayList = myHash;
 
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -54,6 +59,7 @@ public class ListDirectoriesAdapter extends BaseAdapter {
                     R.layout.directories_list_layout, null);
             viewHolder.imageView = (ImageView) convertView.findViewById(R.id.imageDirectories);
             viewHolder.textView = (TextView) convertView.findViewById(R.id.txtDirectoryName);
+            viewHolder.textDate = (TextView) convertView.findViewById(R.id.txtDirectoryCreation);
 
             convertView.setTag(viewHolder);
         }
@@ -63,11 +69,14 @@ public class ListDirectoriesAdapter extends BaseAdapter {
 
         viewHolder.imageView.setId(position);
         viewHolder.textView.setId(position);
+        viewHolder.textDate.setId(position);
 
         viewHolder.imageView.setScaleType(ImageView.ScaleType.FIT_XY);
         viewHolder.imageView.setPadding(8, 8, 8, 8);
 
-        viewHolder.textView.setText(directoriesList.get(position));
+        //viewHolder.textView.setText(directoriesList.get(position));
+        viewHolder.textView.setText(hashMapArrayList.get(position).get("DirName"));
+        viewHolder.textDate.setText(hashMapArrayList.get(position).get("DirDate"));
 
         return convertView;
     }
@@ -75,7 +84,7 @@ public class ListDirectoriesAdapter extends BaseAdapter {
     class ViewHolder {
         ImageView imageView;
         TextView textView;
-        CheckBox checkBox;
+        TextView textDate;
         int id;
     }
 }

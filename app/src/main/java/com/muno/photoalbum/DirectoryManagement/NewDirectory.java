@@ -1,6 +1,7 @@
 package com.muno.photoalbum.DirectoryManagement;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,9 +20,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.muno.photoalbum.Adapters.GridViewImageAdapter;
+import com.muno.photoalbum.ImagesManagement.ImagesSizes;
+import com.muno.photoalbum.MainActivity;
 import com.muno.photoalbum.R;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -35,12 +42,15 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
 
     //Variables
     private File actualDirectory;
+    private File newDataFile;
     private File[] actualDirectoryFilesArray;
     private ArrayList<Bitmap> imagesArray;
     File appDir = new File(Environment.getExternalStorageDirectory() + "/PhotoAlbumDirectory");
+   // File appData = new File(Environment.getExternalStorageDirectory() + "/PhotoAlbum/data");
 
     //Classes
     private GridViewImageAdapter gridViewImageAdapter;
+    private ImagesSizes imagesSizes;
 
 
     @Override
@@ -59,27 +69,6 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
         setActualDirectory(Environment.getExternalStorageDirectory() + "/DCIM/Camera");
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     void setActualDirectory(String dirName) {
         actualDirectory = new File(dirName);
 
@@ -88,7 +77,7 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
         TextView directoryText = (TextView) findViewById(R.id.textDefaultDirectory);
         directoryText.setText(actualDirectory.getAbsolutePath().toString());
 
-        //Call next method
+        //Call load method
         ImagesLoad(actualDirectory);
     }
 
@@ -115,9 +104,8 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
 
         public ImageLoaderAsyncTask(File f) {
             this.myDirectory = f;
-           // isSelected = new boolean[myDirectory.listFiles().length];
 
-            Log.d("trolo:", "ImageLoaderAsynk: "+f.getPath().toString());
+            Log.d("trolo:", "ImageLoaderAsynk: " + f.getPath().toString());
         }
 
         @Override
@@ -135,6 +123,8 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
             for (File f : myDirectory.listFiles()) {
                 String filePath = f.getPath();
                 Log.d("trolo", "FilePath: " + filePath);
+
+
                 Bitmap bitmap = decodeSampledBitmapFromUri(f.getPath(), 200, 200);
                 imagesArray.add(bitmap);
             }
@@ -146,28 +136,7 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
             final GridView gridview = (GridView) findViewById(R.id.gridViewSelect);
             gridViewImageAdapter = new GridViewImageAdapter(NewDirectory.this, imagesArray);
 
-            // gridViewAdapterV2.notifyDataSetChanged();
-
             gridview.setAdapter(gridViewImageAdapter);
-
-
-/*
-            gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-
-                   // File[] files = myDirectory.listFiles();
-                    //Log.d("trolo", "You have Selected: " + position + "; Name: " + files[position].getPath());
-
-                   // ImageView imageView = (ImageView) v.findViewById(R.id.imageView1);
-                   // imageView.setBackgroundColor(Color.BLUE);
-
-                   // setItemsSelected(position, v);
-
-                    v.setBackgroundResource(R.drawable.photo_border_selected);
-                }
-            });
-            */
 
             progressDialog.dismiss();
         }
@@ -175,12 +144,15 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
         public Bitmap decodeSampledBitmapFromUri(String path, int reqWidth, int reqHeight) {
             Bitmap bm = null;
             final BitmapFactory.Options options = new BitmapFactory.Options();
+
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(path, options);
             options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
 
             options.inJustDecodeBounds = false;
+
             bm = BitmapFactory.decodeFile(path, options);
+
             return bm;
         }
 
@@ -198,53 +170,17 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
             }
             return inSampleSize;
         }
-
-
-        //Method to enable disable image border in select images
-        public void setItemsSelected(int pos, View v) {
-            // if (isSelected[pos] == false) {
-            //    isSelected[pos] = true;
-            // }
-            //else if (isSelected[pos] == true) {
-            //    isSelected[pos] = false;
-            // }
-
-            //for (int j=0; j<isSelected.length; j++) {
-            //    Log.d("trolo", "Show: "+isSelected[j]);
-            // }
-
-        /*
-        for (int i=0; i<isSelected.length; i++) {
-            if (isSelected[i] == true) {
-                v.setBackgroundResource(R.drawable.photo_border_selected);
-            }
-            else {
-                v.setBackgroundResource(R.drawable.photo_border_nonselected);
-            }
-        }
-        */
-        }
-
     }
 
 
-        @Override
-        public void onClick (View v){
-            if (v == btnAccept) {
-                Log.d("trolo", "Saved Images List:");
-                boolean[] s = gridViewImageAdapter.getSelectedImages();
+    @Override
+    public void onClick (View v){
+        if (v == btnAccept) {
+            Log.d("trolo", "Saved Images List:");
 
-                File[] f = actualDirectory.listFiles();
-
-                for (int i=0; i<s.length; i++) {
-                    Log.d("trolo", "Ssaved: "+s[i]);
-                    if (s[i] == true) {
-                        Log.d("trolo", "2- Saved: " + f[i].getPath());
-                    }
-                }
-                createNewDirectory(eTxtDirectoryName.getText().toString());
-            }
+            createNewDirectory(eTxtDirectoryName.getText().toString());
         }
+    }
 
     /*
     Method to check if directory name is available
@@ -258,13 +194,17 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
             directoryName = createDefaultDirectoryName();
             createNewDirectory(new File(directoryName));
 
-        } else if (checkNameAvailable(dName)){
-            Log.d("trolo", "Directory Name is: " + dName);
-            eTxtDirectoryName.setText("");
-        }
-        else {
-            directoryName = dName;
-            createNewDirectory(new File(directoryName));
+        } else  {
+            if (!checkNameAvailable(dName)){
+                Log.d("trolo", "Directory Name is: " + dName);
+                eTxtDirectoryName.setText("");
+            }
+
+            //name is available
+            else {
+                directoryName = eTxtDirectoryName.getText().toString();
+                createNewDirectory(new File(directoryName));
+            }
         }
     }
 
@@ -272,8 +212,9 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
         Resources res = getResources();
         if (checkIfDirectoryNameExist(s)) {
             Toast.makeText(getApplicationContext(), res.getString(R.string.file_already_exists), Toast.LENGTH_LONG).show();
+            return  false;
         }
-        return  false;
+        return true;
     }
 
     /*
@@ -294,23 +235,24 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
         if (allFiles.length == 0) {
             //Means Directory is empty so...
             Log.d("trolo", "App Directori is Empty!!!");
-            newDirectoryName = appDir.getPath() + "/" + defaultNameString + " 1";
+            newDirectoryName = appDir.getPath() + "/" + defaultNameString + "1";
         }
 
         //App Base directory contain some directory
         else {
-
             //Show me all directories
-            Log.d("trolo", "Existed Direcotries");
             for (File f: allFiles) {
                 Log.d("trolo", "Direc: "+f.getPath());
             }
 
-            int num = 2;
-            newDirectoryName = appDir.getName() + defaultNameString + Integer.toString(num);
+            //Starting with
+            int num = 1;
+            newDirectoryName = appDir.getPath() + "/"+ defaultNameString + Integer.toString(num);
+
+            //If exist, continue
             while(checkIfDirectoryNameExist(newDirectoryName)) {
                 num++;
-                newDirectoryName = appDir.getName() + "/" + defaultNameString + Integer.toString(num);
+                newDirectoryName = appDir.getPath() + "/" + defaultNameString + Integer.toString(num);
             }
         }
         return newDirectoryName;
@@ -326,7 +268,74 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
     }
 
     public void createNewDirectory(File f) {
+        Toast.makeText(this, "Saving...", Toast.LENGTH_LONG).show();
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Log.d("trolo", "-----FORCE SLEEP  2 OFF-----");
+
         Log.d("trolo", "Creating directory...: "+f.getPath());
         f.mkdirs();
+
+        //Save data here
+        boolean[] s = gridViewImageAdapter.getSelectedImages();
+
+        File[] file = actualDirectory.listFiles();
+
+        String saveFilesString = "";
+
+        for (int i=0; i<s.length; i++) {
+            Log.d("trolo", "Ssaved: "+s[i]);
+            if (s[i] == true) {
+                Log.d("trolo", "2- Saved: " + file[i].getPath());
+                saveFilesString += file[i].getPath().toString() + "\n";
+            }
+        }
+
+        File newDataFile = new File(f.getPath() + "/data.txt");
+        Log.d("trolo", "Data File: " + newDataFile.getPath());
+
+        writeDataFile(newDataFile, saveFilesString);
+
+
+        //Go to MainActivity
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        this.finish();
+    }
+
+    public void writeDataFile(File f, String dataString) {
+        try {
+            FileWriter writer = new FileWriter(f);
+            writer.append(dataString);
+            writer.flush();
+            writer.close();
+
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void readDataFile(File f) {
+        StringBuilder text = new StringBuilder();
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                text.append(line);
+                text.append('\n');
+            }
+            br.close();
+        }
+        catch (IOException e) {
+            //You'll need to add proper error handling here
+        }
+
+        Log.d("trolo", "In Data FIle----");
+        Log.d("trolo", text.toString());
     }
 }

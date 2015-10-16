@@ -20,6 +20,8 @@
         </activity>
         <activity android:name=".DirectoryManagement.NewDirectory"
             android:windowSoftInputMode="adjustPan|adjustResize"></activity>
+        <activity android:name=".DirectoryManagement.OpenDirectory"
+            android:windowSoftInputMode="adjustPan|adjustResize"></activity>
     </application>
 
 </manifest>

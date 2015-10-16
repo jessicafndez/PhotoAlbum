@@ -124,11 +124,11 @@ public class GridViewImageAdapter extends BaseAdapter{
         holder.checkBox .setChecked(selectedImages[position]);
         holder.id = position;
 
-
         return convertView;
     }
 
     public void setSelectedImages(boolean[] s) {
+        Log.d("trolo", "New setter....");
         selectedImages = s;
     }
 

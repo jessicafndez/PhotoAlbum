@@ -10,33 +10,13 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <LinearLayout
-        android:id="@+id/layoutButtons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="20dp">
-        <ImageButton
-            android:id="@+id/delBtn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:src="@drawable/del_btn"/>
-
-        <ImageButton
-            android:id="@+id/addBtn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:src="@drawable/ok_btn"/>
-    </LinearLayout>
-
-
     <ListView
         android:id="@+id/listViewMenu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#606060"/>
+        android:layout_height="0dp"
+        android:layout_weight="10"
+        android:divider="#202020"
+        android:dividerHeight="1dp" />
 
 </LinearLayout>
 
