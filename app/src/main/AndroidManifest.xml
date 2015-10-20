@@ -10,8 +10,9 @@
         android:label="@string/app_name"
         android:theme="@style/MyTheme" >
         <activity
-            android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:name=".BaseActivities.MainActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -19,9 +20,20 @@
             </intent-filter>
         </activity>
         <activity android:name=".DirectoryManagement.NewDirectory"
-            android:windowSoftInputMode="adjustPan|adjustResize"></activity>
+            android:windowSoftInputMode="adjustPan|adjustResize"
+            android:screenOrientation="portrait"></activity>
         <activity android:name=".DirectoryManagement.OpenDirectory"
-            android:windowSoftInputMode="adjustPan|adjustResize"></activity>
+            android:windowSoftInputMode="adjustPan|adjustResize"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".BaseActivities.RenameDirectory"
+            android:windowSoftInputMode="adjustPan|adjustResize"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".BaseActivities.CompressAndSendDirectory"
+            android:windowSoftInputMode="adjustPan|adjustResize"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".BaseActivities.SendEmailInfoActivity"
+            android:windowSoftInputMode="adjustPan|adjustResize"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

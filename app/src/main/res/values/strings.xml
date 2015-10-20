@@ -2,7 +2,7 @@
     <string name="app_name">Photo Album</string>
 
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">About</string>
 
     <!--Main Activity -->
     <string name="add_new_directory">Create New Album</string>
@@ -26,5 +26,34 @@
     <string name="folder_name_hint_string">My Folder Name</string>
     <string name="loading_directory_string">Loading Photos...</string>
     <string name="file_already_exists">File name already exists!</string>
+    <string name="select_directory">Select Directory: </string>
+    <string name="camera_menu">Camera</string>
+    <string name="whats_up_menu">WhatsApp</string>
 
+    <!--Rename Directory -->
+    <string name="rename_directory_title">Rename directory: </string>
+    <string name="to">To: </string>
+    <string name="new_name_hint">New name</string>
+    <string name="directory_name_exist">Already exists a directory with this name.\n
+        Please, choose another directory name.</string>
+
+    <!--Compress And Send -->
+    <string name="compress_file">Compress Album: </string>
+    <string name="send_to">Send to: </string>
+    <string name="enter_email_here">Enter destination email here</string>
+    <string name="loading_directory_files">Compressing album...</string>
+    <string name="numero_photos_abum">Compressing album with </string>
+    <string name="photos">photos</string>
+    <string name="in"> in </string>
+    <string name="emails">emails</string>
+    <string name="message_wrong_email">Email must have "@"</string>
+
+    <!--Send Email Info -->
+    <string name="sending_email_to">Sending email to: </string>
+    <string name="with_files">With this Files: </string>
+    <string name="no_client_installed">There are no email clients installed</string>
+    <string name="email_subject">App PhotoAlbum</string>
+    <string name="email_body">This email contains the selected and compressed album from App PhotoAlbum</string>
+    <string name="size">Size: </string>
+    <string name="press_ok_confirm">Click OK to confirm sending</string>
 </resources>

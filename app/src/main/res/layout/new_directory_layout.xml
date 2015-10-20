@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:weightSum="14">
+    android:weightSum="14"
+    android:background="#f2f9f9">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,7 +27,9 @@
             android:layout_weight="2"
             android:hint="@string/folder_name_hint_string"
             android:textStyle="italic"
-            android:focusableInTouchMode="true"/>
+            android:focusableInTouchMode="true"
+            android:imeOptions="actionDone"
+            android:inputType="textCapSentences"/>
     </LinearLayout>
 
     <LinearLayout

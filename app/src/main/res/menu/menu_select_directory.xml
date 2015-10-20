@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:myapp="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".DirectoryManagement.OpenDirectory">
+
+    <item
+        android:id="@+id/action_camera_folder"
+        android:title="@string/camera_menu"
+        android:orderInCategory="1"
+        myapp:showAsAction="never" />
+    <item
+        android:id="@+id/action_whatsapp_folder"
+        android:title="@string/whats_up_menu"
+        android:orderInCategory="2"
+        myapp:showAsAction="never" />
+
+</menu>

@@ -1,4 +1,4 @@
-package com.muno.photoalbum;
+package com.muno.photoalbum.BaseActivities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -14,14 +14,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.muno.photoalbum.Adapters.ListDirectoriesAdapter;
 import com.muno.photoalbum.DirectoryManagement.NewDirectory;
 import com.muno.photoalbum.DirectoryManagement.OpenDirectory;
+import com.muno.photoalbum.R;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -36,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ListView listView;
 
     //Variables
-    File appDir;
+    File appDir, tempAppFolder;
     ArrayList<String> fileNamesStringArray;
     Resources res;
 
@@ -49,15 +48,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         //Create or Load Initial App Directori
+        //Need to create Temp folder to compress and send
         appDir = new File(Environment.getExternalStorageDirectory() + "/PhotoAlbumDirectory");
+        tempAppFolder = new File(Environment.getExternalStorageDirectory() + "/TempFileFolder");
        // dataDir = new File(Environment.getExternalStorageDirectory() + "/PhotoAlbum/"+"data");
-        if(!appDir.exists()) {
+        if(!appDir.exists() ||!tempAppFolder.exists()) {
             appDir.mkdirs();
+            tempAppFolder.mkdirs();
             //dataDir.mkdirs();
             Log.d("trolo", "dir. created");
         }else {
             Log.d("trolo", "dir. already exists");
         }
+
         //ONCE
         //dataDir.delete();
         //dataDir.mkdirs();
@@ -93,8 +96,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         ArrayList<HashMap<String, String>> myHashArray =  new ArrayList<>();
         for (File f : appDir.listFiles()) {
-
-
             Date lastModDate = new Date(f.lastModified());
 
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -113,22 +114,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             fileNamesStringArray.add(f.getName());
         }
 
-
-
         listDirectoriesAdapter = new ListDirectoriesAdapter(MainActivity.this, fileNamesStringArray, myHashArray);
+
+      //  listDirectoriesAdapter.notifyDataSetChanged();
+
         listView.setAdapter(listDirectoriesAdapter);
-
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("trolo", "Long click Here...");
-
-                //ImageView imageView = (ImageView) v.findViewById(R.id.imageView1);
-               // CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkBoxDelete);
-              //  checkBox.setVisibility(View.VISIBLE);
-                return false;
-            }
-        });
 
         //Simple click
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -136,9 +126,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d("trolo", "Open File: " + listView.getAdapter().getItem(position));
                 Intent intent = new Intent(getApplicationContext(), OpenDirectory.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                ;
                 intent.putExtra("FileName", listView.getAdapter().getItem(position).toString());
                 startActivity(intent);
+                finish();
             }
         });
     }
@@ -175,75 +165,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             AddNewDirectory();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        String pressDir = fileNamesStringArray.get(((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position);
-        switch(item.getItemId()) {
-            case R.id.action_delete:
-                // add stuff here
-                DeleteDirectory(pressDir);
-                return true;
-            case R.id.action_rename:
-                // edit stuff here
 
-                return true;
-            case R.id.action_compress_send:
-                // remove stuff here
-                return true;
-            case R.id.action_details:
-                // remove stuff here
-                return true;
-            default:
-                return super.onContextItemSelected(item);
-        }
-    }
 
     public void AddNewDirectory() {
+        String defaultDirectory = Environment.getExternalStorageDirectory() + "/DCIM/Camera";
         Intent intent = new Intent(this, NewDirectory.class);
+        intent.putExtra("DefaultDirectory", defaultDirectory);
         startActivity(intent);
     }
 
-    /*
-    Context Item Selected Actions
-     */
-    //Delete Directory
-    public void DeleteDirectory(String dName) {
-        final String directoryName = appDir.getPath() + "/" + dName;
-        Log.d("trolo", "We r going to delete: "+directoryName);
-
-        String messageString = res.getString(R.string.delete_directory_msg) + ": \n"+ dName +"\n\n"
-                + res.getString(R.string.are_u_sure);
-
-        //Need to Show Message to User
-        AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
-        builder1.setMessage(messageString);
-        builder1.setCancelable(true);
-        builder1.setPositiveButton(res.getString(R.string.yes),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        //Go to delete
-                        Log.d("trolo", "Deleting, sorry...");
-                        File fDirectory = new File(directoryName);
-                        fDirectory.delete();
-
-                        //Reload Activity
-                        finish();
-                        startActivity(getIntent());
-                    }
-                });
-        builder1.setNegativeButton(res.getString(R.string.no),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
-        builder1.show();
-
-    }
 
     @Override
     public void onClick(View v) {

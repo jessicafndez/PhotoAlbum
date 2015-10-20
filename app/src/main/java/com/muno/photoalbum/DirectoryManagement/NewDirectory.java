@@ -10,9 +10,12 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Menu;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -21,7 +24,7 @@ import android.widget.Toast;
 
 import com.muno.photoalbum.Adapters.GridViewImageAdapter;
 import com.muno.photoalbum.ImagesManagement.ImagesSizes;
-import com.muno.photoalbum.MainActivity;
+import com.muno.photoalbum.BaseActivities.MainActivity;
 import com.muno.photoalbum.R;
 
 import java.io.BufferedReader;
@@ -38,6 +41,7 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
 
     //Components
     private ImageButton btnAccept, btnCancel;
+    private Button btnSearchDirectory;
     private EditText eTxtDirectoryName;
 
     //Variables
@@ -62,11 +66,15 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
         btnAccept = (ImageButton) findViewById(R.id.acceptBtn);
         btnCancel = (ImageButton) findViewById(R.id.cancelBtn);
         eTxtDirectoryName = (EditText) findViewById(R.id.eTextDirecotyName);
+        btnSearchDirectory = (Button) findViewById(R.id.btnSearchDirectory);
         btnAccept.setOnClickListener(this);
         btnCancel.setOnClickListener(this);
 
+        registerForContextMenu(btnSearchDirectory);
+
+        String defaultDirectory = getIntent().getStringExtra("DefaultDirectory");
         //Default Directory
-        setActualDirectory(Environment.getExternalStorageDirectory() + "/DCIM/Camera");
+        setActualDirectory(defaultDirectory);
     }
 
     void setActualDirectory(String dirName) {
@@ -75,7 +83,7 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
         actualDirectoryFilesArray = actualDirectory.listFiles();
 
         TextView directoryText = (TextView) findViewById(R.id.textDefaultDirectory);
-        directoryText.setText(actualDirectory.getAbsolutePath().toString());
+        directoryText.setText(actualDirectory.getName());
 
         //Call load method
         ImagesLoad(actualDirectory);
@@ -125,7 +133,7 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
                 Log.d("trolo", "FilePath: " + filePath);
 
 
-                Bitmap bitmap = decodeSampledBitmapFromUri(f.getPath(), 200, 200);
+                Bitmap bitmap = decodeSampledBitmapFromUri(f.getPath(), 50, 50);
                 imagesArray.add(bitmap);
             }
             return imagesArray;
@@ -182,6 +190,40 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_select_directory, menu);
+        Resources res = getResources();
+        String titleMenu = res.getString(R.string.select_directory);
+    }
+
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        String defaultDirectory = "";
+        Intent intent;
+        switch (item.getItemId()) {
+            case R.id.action_camera_folder:
+                //Default Camera Directory
+                defaultDirectory += Environment.getExternalStorageDirectory() + "/DCIM/Camera";
+                intent = getIntent();
+                intent.putExtra("DefaultDirectory", defaultDirectory);
+                this.finish();
+                startActivity(intent);
+                return true;
+            case R.id.action_whatsapp_folder:
+                defaultDirectory += Environment.getExternalStorageDirectory() + "/WhatsApp/Media/"
+                        +"/WhatsApp Images";
+                intent = getIntent();
+                intent.putExtra("DefaultDirectory", defaultDirectory);
+                this.finish();
+                startActivity(intent);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+
     /*
     Method to check if directory name is available
      */
@@ -202,7 +244,8 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
 
             //name is available
             else {
-                directoryName = eTxtDirectoryName.getText().toString();
+                directoryName = appDir.getPath() +"/" + eTxtDirectoryName.getText().toString();
+                Log.d("trolo", "DirectoryNAme: "+directoryName);
                 createNewDirectory(new File(directoryName));
             }
         }
