@@ -34,6 +34,9 @@
         <activity android:name=".BaseActivities.SendEmailInfoActivity"
             android:windowSoftInputMode="adjustPan|adjustResize"
             android:screenOrientation="portrait"></activity>
+        <activity android:name=".DirectoryManagement.OpenFullImagesDirectory"
+            android:windowSoftInputMode="adjustPan|adjustResize"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

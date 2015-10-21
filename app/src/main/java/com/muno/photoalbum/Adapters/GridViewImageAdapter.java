@@ -82,24 +82,6 @@ public class GridViewImageAdapter extends BaseAdapter{
         holder.imageView.setScaleType(ImageView.ScaleType.FIT_XY);
         holder.imageView.setPadding(8, 8, 8, 8);
 
-        /*
-        holder.checkBox.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                CheckBox cb = (CheckBox) v;
-                int id = cb.getId();
-                Log.d("trolo", "OnClick ID: " + id);
-
-                if (selectedImages[id]) {
-                    cb.setChecked(false);
-                    selectedImages[id] = false;
-                } else {
-                    cb.setChecked(true);
-                    selectedImages[id] = true;
-                }
-            }
-        });
-        */
 
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override

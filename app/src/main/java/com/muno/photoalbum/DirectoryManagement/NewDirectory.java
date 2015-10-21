@@ -86,7 +86,7 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
         directoryText.setText(actualDirectory.getName());
 
         //Call load method
-        ImagesLoad(actualDirectory);
+      //  ImagesLoad(actualDirectory);
     }
 
     File getActualDirecoty() {
@@ -98,7 +98,11 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
         //Set array images Selected
         //isSelected = new boolean[actualDirectory.listFiles().length];
 
-        new ImageLoaderAsyncTask(fileDir).execute();
+        Intent intent = new Intent(this, OpenFullImagesDirectory.class);
+        intent.putExtra("AlbumDirectory", fileDir.getPath());
+        startActivity(intent);
+
+       // new ImageLoaderAsyncTask(fileDir).execute();
     }
 
 
@@ -128,13 +132,14 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
 
         @Override
         protected ArrayList<Bitmap> doInBackground(Void... params) {
+            int c = 0;
             for (File f : myDirectory.listFiles()) {
                 String filePath = f.getPath();
-                Log.d("trolo", "FilePath: " + filePath);
+                Log.d("trolo", "FilePath: " + filePath + "-->"+c);
 
-
-                Bitmap bitmap = decodeSampledBitmapFromUri(f.getPath(), 50, 50);
+                Bitmap bitmap = decodeSampledBitmapFromUri(f.getPath(), 200, 200);
                 imagesArray.add(bitmap);
+                c++;
             }
             return imagesArray;
         }
@@ -206,18 +211,27 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
             case R.id.action_camera_folder:
                 //Default Camera Directory
                 defaultDirectory += Environment.getExternalStorageDirectory() + "/DCIM/Camera";
+                /*
                 intent = getIntent();
                 intent.putExtra("DefaultDirectory", defaultDirectory);
                 this.finish();
                 startActivity(intent);
+                */
+
                 return true;
             case R.id.action_whatsapp_folder:
-                defaultDirectory += Environment.getExternalStorageDirectory() + "/WhatsApp/Media/"
+                defaultDirectory += Environment.getExternalStorageDirectory() + "/WhatsApp/Media"
                         +"/WhatsApp Images";
+                intent = new Intent (NewDirectory.this, OpenFullImagesDirectory.class);
+                intent.putExtra("AlbumDirectory", defaultDirectory);
+                startActivity(intent);
+                this.finish();
+                /*
                 intent = getIntent();
                 intent.putExtra("DefaultDirectory", defaultDirectory);
                 this.finish();
                 startActivity(intent);
+                */
                 return true;
             default:
                 return super.onContextItemSelected(item);
