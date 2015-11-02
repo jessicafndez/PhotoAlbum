@@ -1,16 +1,21 @@
 package com.muno.photoalbum.DirectoryManagement;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,9 +27,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.etsy.android.grid.StaggeredGridView;
+import com.muno.photoalbum.Adapters.AlbumAdapter;
+import com.muno.photoalbum.Adapters.AlbumLayoutAdapter;
 import com.muno.photoalbum.Adapters.GridViewImageAdapter;
 import com.muno.photoalbum.ImagesManagement.ImagesSizes;
 import com.muno.photoalbum.BaseActivities.MainActivity;
+import com.muno.photoalbum.ImagesManagement.PhotosSelected;
 import com.muno.photoalbum.R;
 
 import java.io.BufferedReader;
@@ -33,6 +42,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by InX on 09/10/2015.
@@ -40,9 +50,10 @@ import java.util.ArrayList;
 public class NewDirectory extends AppCompatActivity implements View.OnClickListener {
 
     //Components
-    private ImageButton btnAccept, btnCancel;
-    private Button btnSearchDirectory;
+    private ImageButton btnAddMore, btnTrash;
     private EditText eTxtDirectoryName;
+    private TextView txtAlbumSize;
+    StaggeredGridView mGridView;
 
     //Variables
     private File actualDirectory;
@@ -50,7 +61,9 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
     private File[] actualDirectoryFilesArray;
     private ArrayList<Bitmap> imagesArray;
     File appDir = new File(Environment.getExternalStorageDirectory() + "/PhotoAlbumDirectory");
-   // File appData = new File(Environment.getExternalStorageDirectory() + "/PhotoAlbum/data");
+    private boolean[] selectedToTrash;
+    private PhotosSelected photosSelectedTrash;
+    ArrayList<String> photosSaved;
 
     //Classes
     private GridViewImageAdapter gridViewImageAdapter;
@@ -63,66 +76,75 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.new_directory_layout);
 
         //Components
-        btnAccept = (ImageButton) findViewById(R.id.acceptBtn);
-        btnCancel = (ImageButton) findViewById(R.id.cancelBtn);
         eTxtDirectoryName = (EditText) findViewById(R.id.eTextDirecotyName);
-        btnSearchDirectory = (Button) findViewById(R.id.btnSearchDirectory);
-        btnAccept.setOnClickListener(this);
-        btnCancel.setOnClickListener(this);
+        btnTrash = (ImageButton) findViewById(R.id.trashBtn);
+        btnAddMore = (ImageButton) findViewById(R.id.addMoreBtn);
+        txtAlbumSize = (TextView) findViewById(R.id.txtSizeInfo);
 
-        registerForContextMenu(btnSearchDirectory);
+        btnAddMore.setOnClickListener(this);
+        btnTrash.setOnClickListener(this);
 
-        String defaultDirectory = getIntent().getStringExtra("DefaultDirectory");
-        //Default Directory
-        setActualDirectory(defaultDirectory);
+        mGridView  = (StaggeredGridView) findViewById(R.id.gridViewSelect);
+       // registerForContextMenu(mGridView);
+
+
+        //saved Photos
+        photosSaved = getIntent().getStringArrayListExtra("PhotoSavedArray");
+        for (String s: photosSaved) {
+            Log.d("trolo", "New Direcotry Saved: "+s);
+        }
+
+        photosSelectedTrash = new PhotosSelected(new boolean[photosSaved.size()],
+                photosSaved.size());
+
+        Resources res = getResources();
+        String folderSize = res.getString(R.string.directory_size)
+                + ": " + photosSaved.size();
+        txtAlbumSize.setText(folderSize);
+        if(photosSaved.size()<10) {
+            txtAlbumSize.setTextColor(Color.parseColor("#009999"));
+        }
+        else {
+            txtAlbumSize.setTextColor(Color.parseColor("#fd1d2d"));
+        }
+
+        new ImageLoaderAsyncTask(photosSaved).execute();
     }
 
-    void setActualDirectory(String dirName) {
-        actualDirectory = new File(dirName);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_new_directory_add_more, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
 
-        actualDirectoryFilesArray = actualDirectory.listFiles();
-
-        TextView directoryText = (TextView) findViewById(R.id.textDefaultDirectory);
-        directoryText.setText(actualDirectory.getName());
-
-        //Call load method
-      //  ImagesLoad(actualDirectory);
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_accept_btn) {
+            createNewDirectory(eTxtDirectoryName.getText().toString());
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
-    File getActualDirecoty() {
-        return actualDirectory;
-    }
-
-    //Method to call and enumerate files of directory passing as value
-    void ImagesLoad(File fileDir) {
-        //Set array images Selected
-        //isSelected = new boolean[actualDirectory.listFiles().length];
-
-        Intent intent = new Intent(this, OpenFullImagesDirectory.class);
-        intent.putExtra("AlbumDirectory", fileDir.getPath());
-        startActivity(intent);
-
-       // new ImageLoaderAsyncTask(fileDir).execute();
-    }
 
 
     public class ImageLoaderAsyncTask extends AsyncTask<Void, Void, ArrayList<Bitmap>> {
-        //Asynk Method to Load Images of directory
-        private File myDirectory;
-
-        private ArrayList<Bitmap> imagesArray = new ArrayList<>();
-
         private ProgressDialog progressDialog;
+        private List<String> photoList = new ArrayList<>();
 
-        public ImageLoaderAsyncTask(File f) {
-            this.myDirectory = f;
-
-            Log.d("trolo:", "ImageLoaderAsynk: " + f.getPath().toString());
+        private ImageLoaderAsyncTask(List<String> pList) {
+            this.photoList = pList;
         }
 
         @Override
         protected void onPreExecute() {
-            //ProgressDialog starting Methods
+            //ProgressDialog starting Methods */
             progressDialog = new ProgressDialog(NewDirectory.this);
             Resources res = getResources();
             progressDialog.setMessage(res.getString(R.string.loading_directory_string));
@@ -132,24 +154,25 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
 
         @Override
         protected ArrayList<Bitmap> doInBackground(Void... params) {
-            int c = 0;
-            for (File f : myDirectory.listFiles()) {
-                String filePath = f.getPath();
-                Log.d("trolo", "FilePath: " + filePath + "-->"+c);
+            ArrayList<Bitmap> myBitmap = new ArrayList<>();
 
-                Bitmap bitmap = decodeSampledBitmapFromUri(f.getPath(), 200, 200);
-                imagesArray.add(bitmap);
-                c++;
+            Log.d("mysize", "Loading Files: " + myBitmap.size());
+            //We r going to load only 1 page in each AsyncTask
+            for(String s: photoList) {
+                Bitmap bitmap = decodeSampledBitmapFromUri(s, 200, 200);
+                myBitmap.add(bitmap);
             }
-            return imagesArray;
+            return myBitmap;
         }
-
         @Override
         protected void onPostExecute(ArrayList<Bitmap> imagesList) {
-            final GridView gridview = (GridView) findViewById(R.id.gridViewSelect);
-            gridViewImageAdapter = new GridViewImageAdapter(NewDirectory.this, imagesArray);
+            //AlbumLayoutAdapter gridViewImageAdapter = new AlbumLayoutAdapter(NewDirectory.this, imagesList);
 
-            gridview.setAdapter(gridViewImageAdapter);
+            //mGridView.setAdapter(gridViewImageAdapter);
+             gridViewImageAdapter = new GridViewImageAdapter(NewDirectory.this, imagesList,
+                    photosSelectedTrash);
+            StaggeredGridView mGridView  = (StaggeredGridView) findViewById(R.id.gridViewSelect);
+            mGridView.setAdapter(gridViewImageAdapter);
 
             progressDialog.dismiss();
         }
@@ -163,12 +186,13 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
             options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
 
             options.inJustDecodeBounds = false;
+            options.inPreferredConfig = Bitmap.Config.RGB_565;
+            options.inDither = true;
 
             bm = BitmapFactory.decodeFile(path, options);
 
             return bm;
         }
-
         public int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
             final int height = options.outHeight;
             final int width = options.outWidth;
@@ -185,58 +209,6 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-
-    @Override
-    public void onClick (View v){
-        if (v == btnAccept) {
-            Log.d("trolo", "Saved Images List:");
-
-            createNewDirectory(eTxtDirectoryName.getText().toString());
-        }
-    }
-
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_select_directory, menu);
-        Resources res = getResources();
-        String titleMenu = res.getString(R.string.select_directory);
-    }
-
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        String defaultDirectory = "";
-        Intent intent;
-        switch (item.getItemId()) {
-            case R.id.action_camera_folder:
-                //Default Camera Directory
-                defaultDirectory += Environment.getExternalStorageDirectory() + "/DCIM/Camera";
-                /*
-                intent = getIntent();
-                intent.putExtra("DefaultDirectory", defaultDirectory);
-                this.finish();
-                startActivity(intent);
-                */
-
-                return true;
-            case R.id.action_whatsapp_folder:
-                defaultDirectory += Environment.getExternalStorageDirectory() + "/WhatsApp/Media"
-                        +"/WhatsApp Images";
-                intent = new Intent (NewDirectory.this, OpenFullImagesDirectory.class);
-                intent.putExtra("AlbumDirectory", defaultDirectory);
-                startActivity(intent);
-                this.finish();
-                /*
-                intent = getIntent();
-                intent.putExtra("DefaultDirectory", defaultDirectory);
-                this.finish();
-                startActivity(intent);
-                */
-                return true;
-            default:
-                return super.onContextItemSelected(item);
-        }
-    }
 
     /*
     Method to check if directory name is available
@@ -337,10 +309,11 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
         f.mkdirs();
 
         //Save data here
-        boolean[] s = gridViewImageAdapter.getSelectedImages();
+       // boolean[] s = gridViewImageAdapter.getSelectedImages();
 
-        File[] file = actualDirectory.listFiles();
+//        File[] file = actualDirectory.listFiles();
 
+        /*
         String saveFilesString = "";
 
         for (int i=0; i<s.length; i++) {
@@ -350,6 +323,14 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
                 saveFilesString += file[i].getPath().toString() + "\n";
             }
         }
+        */
+
+        String saveFilesString = "";
+        for(int i=0; i<photosSaved.size(); i++) {
+            saveFilesString += photosSaved.get(i) + "\n";
+            Log.d("trolo","Saving....."+photosSaved.get(i));
+        }
+
 
         File newDataFile = new File(f.getPath() + "/data.txt");
         Log.d("trolo", "Data File: " + newDataFile.getPath());
@@ -394,5 +375,83 @@ public class NewDirectory extends AppCompatActivity implements View.OnClickListe
 
         Log.d("trolo", "In Data FIle----");
         Log.d("trolo", text.toString());
+    }
+
+    @Override
+    public void onClick (View v){
+        if (v == btnAddMore) {
+          //  Log.d("trolo", "Saved Images List:");
+
+         //   createNewDirectory(eTxtDirectoryName.getText().toString());
+        }
+
+        if(v == btnTrash) {
+            //First check is something is selected
+            //selected for trash
+            int count = 0;
+            for(int i=0; i<photosSelectedTrash.getObjectSize(); i++){
+                if(photosSelectedTrash.getSingleSelected(i)== true) {
+                    count++;
+                }
+            }
+            Log.d("trolo", "Trash objects: "+count);
+            Resources res = getResources();
+
+            if (count == 0){
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(NewDirectory.this);
+                builder1.setMessage(res.getString(R.string.no_photos_to_trash));
+                builder1.setCancelable(true);
+                builder1.setPositiveButton(res.getString(R.string.ok),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                //  AddNewDirectory();
+                                dialog.cancel();
+                            }
+                        });
+                builder1.show();
+            }
+            else {
+                String message = res.getString(R.string.you_going_to_select) + " " + count + " "
+                        + res.getString(R.string.photos);
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(NewDirectory.this);
+                builder1.setMessage(message);
+                builder1.setCancelable(true);
+                final int c = count;
+                builder1.setPositiveButton(res.getString(R.string.ok),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                //  delete selected photos & reload activity
+                                DeleteAndReloadPhotos(c);
+                                dialog.cancel();
+                            }
+                        });
+                builder1.setNegativeButton(res.getString(R.string.cancel),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                //  delete selected photos & reload activity
+                                dialog.cancel();
+                            }
+                        });
+                builder1.show();
+            }
+        }
+    }
+    /*****************************************************
+    * To Delete seleted photos and reload activity
+     *****************************************************/
+    public void DeleteAndReloadPhotos(int nDelete) {
+       // int newSize = photosSelectedTrash.getObjectSize() - nDelete;
+        ArrayList<String> newPhotoSaved = new ArrayList<>();
+        for(int i=0; i<photosSelectedTrash.getObjectSize(); i++) {
+            if(photosSelectedTrash.getSingleSelected(i) == false) {
+                //if not selected, then add in new array
+                newPhotoSaved.add(photosSaved.get(i));
+            }
+        }
+
+        Intent intent = getIntent();
+        intent.putStringArrayListExtra("PhotoSavedArray", newPhotoSaved);
+        startActivity(intent);
+        finish();
     }
 }

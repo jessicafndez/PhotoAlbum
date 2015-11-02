@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:weightSum="14"
+    android:weightSum="15"
     android:background="#f2f9f9">
 
     <LinearLayout
@@ -38,32 +39,18 @@
         android:layout_weight="1"
         android:layout_margin="5dp">
         <TextView
-            android:id="@+id/textDefaultDirectory"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="4"
-            android:textColor="#000000"
-            android:textSize="15sp"/>
-        <Button
-            android:id="@+id/btnSearchDirectory"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="..."/>
+            android:id="@+id/txtSizeInfo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
     </LinearLayout>
 
-    <GridView
+    <com.etsy.android.grid.StaggeredGridView
         android:id="@+id/gridViewSelect"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="9"
-        android:columnWidth="150dp"
-        android:gravity="center"
-        android:numColumns="auto_fit"
-        android:stretchMode='columnWidth'
-        android:verticalSpacing="10dp"
-        android:horizontalSpacing="5dp">
-    </GridView>
+        android:layout_weight="10"
+        app:item_margin="8dp"
+        app:column_count="2" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -73,20 +60,25 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_alignParentBottom="true">
+            android:gravity="center"
+            android:layout_margin="5dp">
             <ImageButton
-                android:id="@+id/cancelBtn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/del_btn"/>
+                android:id="@+id/trashBtn"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="#009999"
+                android:src="@drawable/trash_icon"
+                android:layout_marginRight="30dp"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true" />
             <ImageButton
-                android:id="@+id/acceptBtn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/ok_btn"/>
+                android:id="@+id/addMoreBtn"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="#009999"
+                android:src="@drawable/add_icon"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true" />
         </LinearLayout>
     </RelativeLayout>
 </LinearLayout>

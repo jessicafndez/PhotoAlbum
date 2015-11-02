@@ -31,14 +31,23 @@ public class AlbumLayoutAdapter extends BaseAdapter{
     private ArrayList<String> imageString;
     private boolean[] selectedImages;
 
-
     public AlbumLayoutAdapter(Context c, ArrayList<Bitmap> iList, ArrayList<String> iString) {
+   // public AlbumLayoutAdapter(Context c, ArrayList<Bitmap> iList, ArrayList<String> iString) {
         this.context = c;
         this.imageBitmap = iList;
         this.imageString = iString;
 
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
+    public AlbumLayoutAdapter(Context c, ArrayList<Bitmap> iList) {
+        // public AlbumLayoutAdapter(Context c, ArrayList<Bitmap> iList, ArrayList<String> iString) {
+        this.context = c;
+        this.imageBitmap = iList;
+        this.imageString = null;
+
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    }
+
 
     @Override
     public int getCount() {
@@ -80,12 +89,16 @@ public class AlbumLayoutAdapter extends BaseAdapter{
 
         //Rotate ImageView
 
-        String imageFileName = imageString.get(position);
+        if (imageString != null) {
+            String imageFileName = imageString.get(position);
 
-        int rotation = new ImagesExif().getRotationAngle(imageFileName);
-
-        holder.imageView.setImageBitmap(imageBitmap.get(position));
-        holder.imageView.setRotation(rotation);
+            int rotation = new ImagesExif().getRotationAngle(imageFileName);
+            holder.imageView.setImageBitmap(imageBitmap.get(position));
+            holder.imageView.setRotation(rotation);
+        }
+        else {
+            holder.imageView.setImageBitmap(imageBitmap.get(position));
+        }
 
         holder.id = position;
 

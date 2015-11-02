@@ -52,21 +52,4 @@
         android:layout_height="1dp"
         android:background="#514f50"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp">
-        <ImageButton
-            android:id="@+id/cancelBtn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@drawable/del_btn"/>
-        <ImageButton
-            android:id="@+id/acceptBtn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@drawable/ok_btn"/>
-    </LinearLayout>
 </LinearLayout>

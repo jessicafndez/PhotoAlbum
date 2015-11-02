@@ -4,6 +4,13 @@
     tools:context=".DirectoryManagement.OpenDirectory">
 
     <item
+        android:id="@+id/action_accept_btn"
+        android:title="@string/accept_new_folder"
+        android:icon="@drawable/accept_btn"
+        android:orderInCategory="100"
+        myapp:showAsAction="always"/>
+
+    <item
         android:id="@+id/action_camera_folder"
         android:title="@string/camera_menu"
         android:orderInCategory="1"
@@ -12,6 +19,11 @@
         android:id="@+id/action_whatsapp_folder"
         android:title="@string/whats_up_menu"
         android:orderInCategory="2"
+        myapp:showAsAction="never" />
+    <item
+        android:id="@+id/action_others_folder"
+        android:title="@string/others_folder"
+        android:orderInCategory="3"
         myapp:showAsAction="never" />
 
 </menu>

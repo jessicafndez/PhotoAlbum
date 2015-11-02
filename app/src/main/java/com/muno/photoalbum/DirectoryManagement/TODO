@@ -1,0 +1,59 @@
+//To Do Here
+
+DONE = Pass boolean[] to GridViewImagesAdapter when call AsyncTask Method()
+
+DONE = new AlbumLoaderAsyncTask(1, 0, maxXPage, selectedImages).execute();
+
+DONE -At the beggining:
+    ºboolean actualSelected[] = new boolean[maxSize];
+
+- Clean Logs in OpenFullImagesDirectory
+- Not sure if checkeds are OK (OpenFullImagesDirectory)
+
+- Cuando marcas una posicion en X pagina
+ ---->> se marca la misma posicion en la todas
+        las sucesivas paginas
+
+- Desarrolar el OpenDirectory...
+
+- Check si NewDirectory crea el data.txt -> ProgressDialog para cargar
+
+
+- ProgressDialog -> progress Bar
+<ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:visibility="gone"
+            android:indeterminateDrawable="@drawable/progress" >
+        </ProgressBar>
+
+        rivate ProgressBar bar;
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.layout);
+            bar = (ProgressBar) this.findViewById(R.id.progressBar);
+            new ProgressTask().execute();
+        }
+        private class ProgressTask extends AsyncTask <Void,Void,Void>{
+            @Override
+            protected void onPreExecute(){
+                bar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            protected Void doInBackground(Void... arg0) {
+                   //my stuff is here
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                  bar.setVisibility(View.GONE);
+            }
+        }
+        }

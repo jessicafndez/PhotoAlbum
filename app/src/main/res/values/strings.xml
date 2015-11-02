@@ -20,15 +20,25 @@
     <string name="no">No</string>
     <string name="delete_directory_msg">You are about to delete the directory </string>
     <string name="are_u_sure">Are you sure?</string>
+    <string name="free_version_max">In free version you can \n
+        create albums a maximum of 10\n photos per album</string>
 
     <!--New Directory Strings -->
-    <string name="folder_name_string">Folder Name</string>
-    <string name="folder_name_hint_string">My Folder Name</string>
+    <string name="folder_name_string">Album Name</string>
+    <string name="folder_name_hint_string">My Album Name</string>
     <string name="loading_directory_string">Loading Photos...</string>
     <string name="file_already_exists">File name already exists!</string>
     <string name="select_directory">Select Directory: </string>
     <string name="camera_menu">Camera</string>
     <string name="whats_up_menu">WhatsApp</string>
+    <string name="others_folder">Others...</string>
+    <string name="add_more_photos">Add more photos</string>
+    <string name="photo_properties">Photo properties</string>
+    <string name="accept_new_folder">Accept new folder</string>
+    <string name="no_photos_to_trash">Select the photos to delete</string>
+    <string name="you_going_to_select">You are going to delete</string>
+    <string name="directory_size">Number of fotos</string>
+    <string name="cancel">Cancel</string>
 
     <!--Rename Directory -->
     <string name="rename_directory_title">Rename directory: </string>

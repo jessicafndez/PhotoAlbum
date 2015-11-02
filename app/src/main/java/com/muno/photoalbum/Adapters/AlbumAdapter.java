@@ -2,57 +2,37 @@ package com.muno.photoalbum.Adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
-import android.widget.CheckedTextView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
-import com.muno.photoalbum.ImagesManagement.PhotosSelected;
 import com.muno.photoalbum.R;
 
 import java.util.ArrayList;
 
 /**
- * Created by InX on 09/10/2015.
+ * Created by InX on 30/10/2015.
  */
-public class GridViewImageAdapter extends BaseAdapter{
-
-    //Components
-    private Context context;
-    private LayoutInflater mInflater;
-
+public class AlbumAdapter extends BaseAdapter  {
     //Variables
     private ArrayList<Bitmap> imageList;
     private boolean[] selectedImages;
-    private PhotosSelected photosSelected;
 
-    public GridViewImageAdapter(Context c, ArrayList<Bitmap> iList, PhotosSelected pS) {
+    private Context context;
+    private LayoutInflater mInflater;
+
+
+    public AlbumAdapter(Context c, ArrayList<Bitmap> iList) {
         this.context = c;
         this.imageList = iList;
-        this.photosSelected = pS;
-
-        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         selectedImages = new boolean[imageList.size()];
-        for(int i=0; i< pS.getObjectSize(); i++) {
-          //  Log.d("trolo", "View Selecteds: "+pS.getSingleSelected(i));
-            selectedImages[i] = pS.getSingleSelected(i);
-        }
 
-        //photosSelected = new PhotosSelected(selectedImages);
-
-        Log.d("trolo","Created Here GRIDVIEW CLASS");
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
-
 
     @Override
     public int getCount() {
@@ -70,7 +50,7 @@ public class GridViewImageAdapter extends BaseAdapter{
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, ViewGroup parent) {
         final ViewHolder holder;
         if (convertView == null) {
             holder = new ViewHolder();
@@ -107,7 +87,7 @@ public class GridViewImageAdapter extends BaseAdapter{
                 }
 
                 //Save results
-                setSelectedImages(id, selectedImages[id]);
+               // setSelectedImages(id, selectedImages[id]);
             }
         });
 
@@ -117,20 +97,9 @@ public class GridViewImageAdapter extends BaseAdapter{
 
         return convertView;
     }
-
-    public void setSelectedImages(int i, boolean state) {
-        Log.d("trolo", "New selected: "+i+";"+selectedImages[i]);
-        selectedImages[i] =  state;
-        photosSelected.setNewPageSelected(selectedImages);
-    }
-
-    public boolean[] getSelectedImages() {
-        return  selectedImages;
-    }
-
-    class ViewHolder {
-        ImageView imageView;
-        CheckBox checkBox;
-        int id;
-    }
+}
+class ViewHolder {
+    ImageView imageView;
+    CheckBox checkBox;
+    int id;
 }

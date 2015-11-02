@@ -18,8 +18,8 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.muno.photoalbum.Adapters.ListDirectoriesAdapter;
-import com.muno.photoalbum.DirectoryManagement.NewDirectory;
 import com.muno.photoalbum.DirectoryManagement.OpenDirectory;
+import com.muno.photoalbum.DirectoryManagement.OpenFullImagesDirectory;
 import com.muno.photoalbum.R;
 
 import java.io.File;
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity  {
 
     //Components
     private ImageButton delBtn, addBtn;
@@ -115,22 +115,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         listDirectoriesAdapter = new ListDirectoriesAdapter(MainActivity.this, fileNamesStringArray, myHashArray);
-
-      //  listDirectoriesAdapter.notifyDataSetChanged();
-
         listView.setAdapter(listDirectoriesAdapter);
 
-        //Simple click
+        //Register for ContextMenu
+        registerForContextMenu(listView);
+
+
+        //DUDE DUDEEEEEEE, we got dis !!!!
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("trolo", "Open File: " + listView.getAdapter().getItem(position));
-                Intent intent = new Intent(getApplicationContext(), OpenDirectory.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra("FileName", listView.getAdapter().getItem(position).toString());
+            public void onItemClick(AdapterView<?> arg0, View arg1,
+                                    int arg2, long arg3) {
+                Intent intent = new Intent(MainActivity.this, OpenDirectory.class);
+                File[] f = appDir.listFiles();
+               // Log.d("trolo", "Opening..."+f[arg2].getPath());
+                intent.putExtra("directoryName", f[arg2].getPath());
                 startActivity(intent);
                 finish();
             }
         });
+
+        //On clivk Open plis
     }
 
     @Override
@@ -139,16 +144,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        if (v.getId()==R.id.listViewMenu) {
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.menu_list_directory, menu);
-        }
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -162,23 +157,128 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         if (id == R.id.action_add_new) {
+
             AddNewDirectory();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        if (v.getId()==R.id.listViewMenu) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.open_folder_menu, menu);
+        }
+    }
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)
+                item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.action_rename:
+              //  editNote(info.id);
+                //PositionToString((int) info.id);
+                RenameDirectory(PositionToString((int) info.id));
+                return true;
+            case R.id.action_compress_send:
+                //deleteNote(info.id);
+                CompressAndSend(PositionToString((int) info.id));
+                return true;
+            case R.id.action_delete:
+                //DeleteDirectory();
+                DeleteDirectory(PositionToString((int) info.id));
+                return true;
+            case R.id.action_details:
+                //deleteNote(info.id);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
 
+    public String PositionToString(int p) {
+        File[] f = appDir.listFiles();
+        Log.d("trolo",f[p].getPath());
+        return f[p].getPath();
+    }
 
-    public void AddNewDirectory() {
-        String defaultDirectory = Environment.getExternalStorageDirectory() + "/DCIM/Camera";
-        Intent intent = new Intent(this, NewDirectory.class);
-        intent.putExtra("DefaultDirectory", defaultDirectory);
+    /********************************************
+     * ** Context Item Selected Actions
+     * ****************************************/
+    //Delete Directory
+    public void DeleteDirectory(String dName) {
+        final String directoryName = appDir.getPath() + "/" + dName;
+        Log.d("trolo", "We r going to delete: "+directoryName);
+
+        String messageString = res.getString(R.string.delete_directory_msg) + ": \n"+ dName +"\n\n"
+                + res.getString(R.string.are_u_sure);
+
+        //Need to Show Message to User
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
+        builder1.setMessage(messageString);
+        builder1.setCancelable(true);
+        builder1.setPositiveButton(res.getString(R.string.yes),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //Go to delete
+                        Log.d("trolo", "Deleting, sorry..."+ directoryName);
+                        File fDirectory = new File(directoryName);
+
+                        new DeleteClass(fDirectory, MainActivity.this);
+
+                        finish();
+                    }
+                });
+        builder1.setNegativeButton(res.getString(R.string.no),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        builder1.show();
+    }
+
+    public void RenameDirectory(String dName) {
+        //File oldName
+        String directoryNameOld = appDir.getPath() + "/" + dName;
+        Intent intent = new Intent(this, RenameDirectory.class);
+        intent.putExtra("OldDirectoryName", directoryNameOld);
+        startActivity(intent);
+    }
+
+    public void CompressAndSend(String dName) {
+        String directoryName = appDir.getPath() + "/" + dName;
+        Intent intent = new Intent(this, CompressAndSendDirectory.class);
+        intent.putExtra("DirectoryName", directoryName);
+   //     intent.putExtra("TempFileFolder", directoryNameFile.getPath());
         startActivity(intent);
     }
 
 
-    @Override
-    public void onClick(View v) {
+    public void AddNewDirectory() {
+        final String defaultDirectory = Environment.getExternalStorageDirectory() + "/DCIM/Camera";
 
+        Log.d("trolo", "Add New Direcotry");
+        //Need to inform than maximus album size has to be 10!!
+
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
+        Resources res = getResources();
+        builder1.setMessage(res.getString(R.string.free_version_max));
+        builder1.setCancelable(true);
+        builder1.setPositiveButton(res.getString(R.string.ok),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        LaunchIntent(defaultDirectory);
+                        dialog.cancel();
+                    }
+                });
+        builder1.show();
+    }
+
+    public void LaunchIntent(String dDirectory) {
+        Intent intent = new Intent(this, OpenFullImagesDirectory.class);
+        intent.putExtra("AlbumDirectory", dDirectory);
+        startActivity(intent);
     }
 }
